@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        h2 {
+            display: inline-block;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            line-height: 1.5;
+            width: 100%;
+        }
+
+        #table_header th {
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            color: #369;
+            border-bottom: 3px solid #036;
+        }
+
+        #table_body th {
+            width: 150px;
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            background: #f3f6f7;
+        }
+
+        #username_text {
+            display: block;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #extract_btn {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            background: #4CAF50;
+            border: 0;
+            padding: 15px;
+            cursor: pointer;
+            color: #FFFFFF;
+            font-weight: bold;
+            font-family: "Roboto", sans-serif;
+            font-size: 14px;
+        }
+
+        table td {
+            width: 350px;
+            padding: 10px;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            overflow: hidden;
+        }
+    </style>
+    <meta http-equiv="refresh" charset="utf-8">
+    <title>StressSensor</title>
+
+</head>
+<body>
+
+<form action="/dashboard/csv" method="post">
+    <div style="margin-bottom: 20px">
+        <h2 style="display: block; margin-bottom: 10px; text-align: center">EMA RESPONSES</h2>
+        <h2 id="username_text">Name: <span style="color: #ff0000; margin-right: 50px">{{ name }} </span> ID: <span style="color: #ff0000;">{{ id }} </span></h2>
+        <button id="extract_btn" type="submit">Extract features</button>
+    </div>
+    <hr>
+
+    <table>
+        <tr id="table_header">
+            <th>Day no.</th>
+            <th>EMA order</th>
+            <th>answer1</th>
+            <th>answer2</th>
+            <th>answer3</th>
+            <th>answer4</th>
+            <th>expected time</th>
+            <th>responded time</th>
+        </tr>
+
+        {% for ema in ema_responses %}
+            <tr id="table_body">
+                <th>{{ ema.day_num }}</th>
+                <td>
+                    {{ ema.ema_order }}
+                </td>
+                <td>
+                    {% if ema.answer1 == -1 %}none{% else %}{{ ema.answer1 }}{% endif %}
+                </td>
+                <td>
+                    {% if ema.answer2 == -1 %}none{% else %}{{ ema.answer2 }}{% endif %}
+                </td>
+                <td>
+                    {% if ema.answer3 == -1 %}none{% else %}{{ ema.answer3 }}{% endif %}
+                </td>
+                <td>
+                    {% if ema.answer4 == -1 %}none{% else %}{{ ema.answer4 }}{% endif %}
+                </td>
+                <td>{{ ema.time_expected }}</td>
+                <td>{% if ema.time_responded == 0 %}none{% else %}{{ ema.time_responded }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <input name="id"  value="{{ id }}" title="">
+</form>
+
+
+</body>
+</html>

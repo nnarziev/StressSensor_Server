@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" charset="utf-8">
+    <title>StressSensor</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        h2 {
+            display: inline-block;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            line-height: 1.5;
+            width: 100%;
+        }
+
+        #table_header th {
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            color: #369;
+            border-bottom: 3px solid #036;
+        }
+
+        #table_body th {
+            width: 150px;
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            background: #f3f6f7;
+        }
+
+        #username_text {
+            display: block;
+            margin-bottom: 10px;
+            color: #ff0000;
+            text-align: center;
+        }
+
+        table td {
+            width: 350px;
+            padding: 10px;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+<body>
+
+<h2 style="display: block; margin-bottom: 10px; text-align: center">EMA RESPONSES</h2>
+
+<h2 id="username_text">{{ username }}</h2>
+<hr>
+<table>
+    <tr id="table_header">
+        <th>Day no.</th>
+        <th>EMA order</th>
+        <th>answer1</th>
+        <th>answer2</th>
+        <th>answer3</th>
+        <th>answer4</th>
+        <th>expected time</th>
+        <th>responded time</th>
+    </tr>
+
+    {% for ema in ema_responses %}
+        <tr id="table_body">
+            <th>{{ ema.day_num }}</th>
+            <td>
+                {{ ema.ema_order }}
+            </td>
+            <td>
+                {% if ema.answer1 == -1 %}none{% else %}{{ ema.answer1 }}{% endif %}
+            </td>
+            <td>
+                {% if ema.answer2 == -1 %}none{% else %}{{ ema.answer2 }}{% endif %}
+            </td>
+            <td>
+                {% if ema.answer3 == -1 %}none{% else %}{{ ema.answer3 }}{% endif %}
+            </td>
+            <td>
+                {% if ema.answer4 == -1 %}none{% else %}{{ ema.answer4 }}{% endif %}
+            </td>
+            <td>{{ ema.time_expected }}</td>
+            <td>{% if ema.time_responded == 0 %}none{% else %}{{ ema.time_responded }}{% endif %}</td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+
+</body>
+</html>

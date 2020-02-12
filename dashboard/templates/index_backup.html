@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" charset="utf-8">
+    <title>StressSensor</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        h2 {
+            display: inline-block;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            line-height: 1.5;
+            width: 100%;
+        }
+
+        #table_header th {
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            color: #369;
+            border-bottom: 3px solid #036;
+        }
+
+        #table_body th {
+            width: 150px;
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            background: #f3f6f7;
+        }
+
+        table td {
+            width: 350px;
+            padding: 10px;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+<body>
+{% load staticfiles %}
+
+<h2 style="display:block; margin-bottom: 20px; text-align: center;"> MAIN DASHBOARD </h2>
+<hr>
+<table>
+    <tr id="table_header">
+        <th>Name</th>
+        <th>ID</th>
+        <th>Current day no.</th>
+        <th>Heartbeat</th>
+        <th>Last data upload</th>
+        <th>Daily data (MB)</th>
+        <th>Total data (MB)</th>
+        <th>Phone number</th>
+        <th>Device Info.</th>
+    </tr>
+
+    {% for participant in participants %}
+        <tr id="table_body" style="background:{% if participant.type == "test" %} #fcf2ff {% elif participant.type == "first" %} #e8fff0 {% elif participant.type == "second" %} #f8ffe0 {% endif %};">
+            <td>{{ participant.name }}</td>
+            <td><a href="/dashboard/{{ participant.id }}/">{{ participant.id }}</a></td>
+            <td>{{ participant.current_day_num }}</td>
+            <td>{{ participant.heartbeat_smartphone_diff }}</td>
+            <td>{{ participant.last_ds_smartphone_diff }}</td>
+            <td>{{ participant.daily_data_load }}</td>
+            <td>{{ participant.total_data_load }}</td>
+            <td>{{ participant.phone_num }}</td>
+            <td>{{ participant.device_info }}</td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+</body>
+</html>
