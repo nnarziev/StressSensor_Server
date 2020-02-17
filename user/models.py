@@ -70,4 +70,4 @@ class ReceivedFilenames(models.Model):
 
 class AppPackageToCategoryMap(models.Model):
     package_name = models.CharField(max_length=128, default='DEFAULT_APP')
-    category = models.CharField(max_length=128, default='UNKNOWN')
+    category = models.CharField(max_length=128, default='UNKNOWN', null=True)

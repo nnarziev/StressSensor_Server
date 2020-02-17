@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.shortcuts import render
 
 from ema.views import NUMBER_OF_EMA
@@ -44,46 +46,58 @@ def extract_features(request, exportCSV):
                     participant = Participant.objects.get(id=username)
                     try:
                         response = HttpResponse(content_type='text/csv')
-                        writer = csv.DictWriter(response, fieldnames=['Name',
-                                                                      'Stress',
+                        writer = csv.DictWriter(response, fieldnames=['Stress lvl',
                                                                       'Day',
-                                                                      'EMA',
-                                                                      'Unlock_dur',
-                                                                      'PhoneCall_dur',
-                                                                      'PhoneCall_number',
-                                                                      'PhoneCall_ratio',
-                                                                      'duration_still',
-                                                                      'duration_walking',
-                                                                      'duration_running',
-                                                                      'duration_bicycle',
-                                                                      'duration_vehicle',
-                                                                      'duration_on_foot',
-                                                                      'duration_tilting',
-                                                                      'duration_unknown',
-                                                                      'number_still',
-                                                                      'number_walking',
-                                                                      'number_running',
-                                                                      'number_bicycle',
-                                                                      'number_vehicle',
-                                                                      'number_on_foot',
-                                                                      'number_tilting',
-                                                                      'number_unknown',
-                                                                      'audio_min',
-                                                                      'audio_max',
-                                                                      'audio_mean',
-                                                                      'total_dist',
-                                                                      'num_places',
-                                                                      'max_dist',
-                                                                      'gyration',
-                                                                      'dist_home',
-                                                                      'time_at_home',
-                                                                      'unlock_at_home',
-                                                                      'sleep_dur',
-                                                                      'pc_audio_min',
-                                                                      'pc_audio_max',
-                                                                      'pc_audio_mean'])
+                                                                      'EMA order',
+                                                                      'Unlock duration',
+                                                                      'Phonecall duration',
+                                                                      'Phonecall number',
+                                                                      'Phonecall ratio',
+                                                                      'Duration STILL',
+                                                                      'Duration WALKING',
+                                                                      'Duration RUNNING',
+                                                                      'Duration BICYCLE',
+                                                                      'Duration VEHICLE',
+                                                                      'Duration ON_FOOT',
+                                                                      'Duration TILTING',
+                                                                      'Duration UNKNOWN',
+                                                                      'Freq. STILL',
+                                                                      'Freq. WALKING',
+                                                                      'Freq. RUNNING',
+                                                                      'Freq. BICYCLE',
+                                                                      'Freq. VEHICLE',
+                                                                      'Freq. ON_FOOT',
+                                                                      'Freq. TILTING',
+                                                                      'Freq. UNKNOWN',
+                                                                      'Audio min.',
+                                                                      'Audio max.',
+                                                                      'Audio mean',
+                                                                      'Total distance',
+                                                                      'Num. of places',
+                                                                      'Max. distance',
+                                                                      'Gyration',
+                                                                      'Max. dist.(HOME)',
+                                                                      'Duration(HOME)',
+                                                                      'Unlock dur.(HOME)',
+                                                                      'Entertainment & Music',
+                                                                      'Utilities',
+                                                                      'Shopping',
+                                                                      'Games & Comics',
+                                                                      'Others',
+                                                                      'Health & Wellness',
+                                                                      'Social & Communication',
+                                                                      'Education',
+                                                                      'Travel',
+                                                                      'Art & Design & Photo',
+                                                                      'News & Magazine',
+                                                                      'Food & Drink',
+                                                                      'Unknown & Background',
+                                                                      'Sleep dur.',
+                                                                      'Phonecall audio min.',
+                                                                      'Phonecall audio max.',
+                                                                      'Phonecall audio mean'])
 
-                        response['Content-Disposition'] = 'attachment;filename=%s.csv' % username
+                        response['Content-Disposition'] = 'attachment;filename=features(%s).csv' % username
                         writer.writeheader()
 
                         ema_responses = Response.objects.filter(username=participant).order_by('day_num', 'ema_order')
@@ -104,7 +118,7 @@ def extract_features(request, exportCSV):
                             num_places = get_num_of_places_result(participant, ema_res.day_num, ema_res.ema_order)
                             time_at = get_time_at_location(participant, start_time, end_time, sensor_views.LOCATION_HOME)
                             unlock_at = get_unlock_duration_at_location(participant, start_time, end_time, sensor_views.LOCATION_HOME)
-                            # app_usage = get_app_category_usage(participant, start_time, end_time)
+                            app_usage = get_app_category_usage(participant, start_time, end_time)
                             sleep_duration = 0
                             pc_audio_data = get_pc_audio_data_result(participant, start_time, end_time)
 
@@ -118,44 +132,59 @@ def extract_features(request, exportCSV):
 
                                 sleep_duration = get_sleep_duration(participant, date_start.timestamp(), date_end.timestamp())
 
-                            writer.writerow({'Name': participant.name,
-                                             'Stress': ema_res.answer1,
+                            writer.writerow({'Stress lvl': ema_res.answer1,
                                              'Day': ema_res.day_num,
-                                             'EMA': ema_res.ema_order,
-                                             'Unlock_dur': unlock_data,
-                                             'PhoneCall_dur': phonecall_data["phone_calls_total_dur"],
-                                             'PhoneCall_number': phonecall_data["phone_calls_total_number"],
-                                             'PhoneCall_ratio': phonecall_data["phone_calls_ratio_in_out"],
-                                             'duration_still': activities_total_dur["still"],
-                                             'duration_walking': activities_total_dur["walking"],
-                                             'duration_running': activities_total_dur["running"],
-                                             'duration_bicycle': activities_total_dur["on_bicycle"],
-                                             'duration_vehicle': activities_total_dur["in_vehicle"],
-                                             'duration_on_foot': activities_total_dur["on_foot"],
-                                             'duration_tilting': activities_total_dur["tilting"],
-                                             'duration_unknown': activities_total_dur["unknown"],
-                                             'number_still': dif_activities["still"],
-                                             'number_walking': dif_activities["walking"],
-                                             'number_running': dif_activities["running"],
-                                             'number_bicycle': dif_activities["on_bicycle"],
-                                             'number_vehicle': dif_activities["in_vehicle"],
-                                             'number_on_foot': dif_activities["on_foot"],
-                                             'number_tilting': dif_activities["tilting"],
-                                             'number_unknown': dif_activities["unknown"],
-                                             'audio_min': audio_data['minimum'],
-                                             'audio_max': audio_data['maximum'],
-                                             'audio_mean': audio_data['mean'],
-                                             'total_dist': total_dist_data,
-                                             'num_places': num_places,
-                                             'max_dist': max_dist,
-                                             'gyration': gyration,
-                                             'dist_home': max_home,
-                                             'time_at_home': time_at,
-                                             'unlock_at_home': unlock_at,
-                                             'sleep_dur': sleep_duration,
-                                             'pc_audio_min': pc_audio_data['minimum'],
-                                             'pc_audio_max': pc_audio_data['maximum'],
-                                             'pc_audio_mean': pc_audio_data['mean']})
+                                             'EMA order': ema_res.ema_order,
+                                             'Unlock duration': unlock_data,
+                                             'Phonecall duration': phonecall_data["phone_calls_total_dur"],
+                                             'Phonecall number': phonecall_data["phone_calls_total_number"],
+                                             'Phonecall ratio': phonecall_data["phone_calls_ratio_in_out"],
+                                             'Duration STILL': activities_total_dur["still"],
+                                             'Duration WALKING': activities_total_dur["walking"],
+                                             'Duration RUNNING': activities_total_dur["running"],
+                                             'Duration BICYCLE': activities_total_dur["on_bicycle"],
+                                             'Duration VEHICLE': activities_total_dur["in_vehicle"],
+                                             'Duration ON_FOOT': activities_total_dur["on_foot"],
+                                             'Duration TILTING': activities_total_dur["tilting"],
+                                             'Duration UNKNOWN': activities_total_dur["unknown"],
+                                             'Freq. STILL': dif_activities["still"],
+                                             'Freq. WALKING': dif_activities["walking"],
+                                             'Freq. RUNNING': dif_activities["running"],
+                                             'Freq. BICYCLE': dif_activities["on_bicycle"],
+                                             'Freq. VEHICLE': dif_activities["in_vehicle"],
+                                             'Freq. ON_FOOT': dif_activities["on_foot"],
+                                             'Freq. TILTING': dif_activities["tilting"],
+                                             'Freq. UNKNOWN': dif_activities["unknown"],
+                                             'Audio min.': audio_data['minimum'],
+                                             'Audio max.': audio_data['maximum'],
+                                             'Audio mean': audio_data['mean'],
+                                             'Total distance': total_dist_data,
+                                             'Num. of places': num_places,
+                                             'Max. distance': max_dist,
+                                             'Gyration': gyration,
+                                             'Max. dist.(HOME)': max_home,
+                                             'Duration(HOME)': time_at,
+                                             'Unlock dur.(HOME)': unlock_at,
+                                             'Entertainment & Music': app_usage['Entertainment & Music'],
+                                             'Utilities': app_usage['Utilities'],
+                                             'Shopping': app_usage['Shopping'],
+                                             'Games & Comics': app_usage['Games & Comics'],
+                                             'Others': app_usage['Others'],
+                                             'Health & Wellness': app_usage['Health & Wellness'],
+                                             'Social & Communication': app_usage['Social & Communication'],
+                                             'Education': app_usage['Education'],
+                                             'Travel': app_usage['Travel'],
+                                             'Art & Design & Photo': app_usage['Art & Design & Photo'],
+                                             'News & Magazine': app_usage['News & Magazine'],
+                                             'Food & Drink': app_usage['Food & Drink'],
+                                             'Unknown & Background': app_usage['Unknown & Background'],
+                                             'Sleep dur.': sleep_duration,
+                                             'Phonecall audio min.': pc_audio_data['minimum'],
+                                             'Phonecall audio max.': pc_audio_data['maximum'],
+                                             'Phonecall audio mean': pc_audio_data['mean']})
+
+                            if participant.current_day_num() == ema_res.day_num and ema_res.ema_order == 6:
+                                break
                         return response
                     except Exception as ex:
                         print(type(ex))
@@ -174,6 +203,7 @@ def ema_per_person(request, user_id):
     ema_responses = Response.objects.filter(username=user_id).order_by('day_num', 'ema_order')[:400]
     context = {
         'id': user_id,
+        'day_num': participant.current_day_num(),
         'name': participant.name,
         'ema_responses': ema_responses
     }
@@ -409,8 +439,14 @@ def get_phonecall_result(participant, start_time, end_time):
         elif f2.call_type == "OUT":
             total_out += 1
 
-    result["phone_calls_total_number"] = total_in + total_out
-    result["phone_calls_ratio_in_out"] = total_in / total_out if total_out > 0 else "-"
+    if result["phone_calls_total_dur"] > 0:
+        result["phone_calls_total_number"] = total_in + total_out
+        result["phone_calls_ratio_in_out"] = total_in / total_out if total_out > 0 else "-"
+    else:
+        result["phone_calls_total_dur"] = "-"
+        result["phone_calls_total_number"] = "-"
+        result["phone_calls_ratio_in_out"] = "-"
+
     return result
 
 
@@ -419,7 +455,8 @@ def get_unlock_result(participant, start_time, end_time):
     unlock_data = sensorModels.unlocked_dur.objects.filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000], timestamp_end__range=[start_time * 1000, end_time * 1000])
     for f1 in unlock_data:
         result += f1.duration
-    return result
+
+    return result if result > 0 else "-"
 
 
 def get_activities_dur_result(participant, start_time, end_time):
@@ -452,6 +489,23 @@ def get_activities_dur_result(participant, start_time, end_time):
             result['tilting'] += f3.duration
         elif f3.activity_type == 'UNKNOWN':
             result['unknown'] += f3.duration
+
+    if result['still'] == 0:
+        result['still'] = "-"
+    if result['walking'] == 0:
+        result['walking'] = "-"
+    if result['running'] == 0:
+        result['running'] = "-"
+    if result['on_bicycle'] == 0:
+        result['on_bicycle'] = "-"
+    if result['in_vehicle'] == 0:
+        result['in_vehicle'] = "-"
+    if result['on_foot'] == 0:
+        result['on_foot'] = "-"
+    if result['tilting'] == 0:
+        result['tilting'] = "-"
+    if result['unknown'] == 0:
+        result['unknown'] = "-"
 
     return result
 
@@ -486,6 +540,23 @@ def get_num_of_dif_activities_result(participant, start_time, end_time):
             result['tilting'] += 1
         elif data.activity_type == 'UNKNOWN':
             result['unknown'] += 1
+
+    if result['still'] == 0:
+        result['still'] = "-"
+    if result['walking'] == 0:
+        result['walking'] = "-"
+    if result['running'] == 0:
+        result['running'] = "-"
+    if result['on_bicycle'] == 0:
+        result['on_bicycle'] = "-"
+    if result['in_vehicle'] == 0:
+        result['in_vehicle'] = "-"
+    if result['on_foot'] == 0:
+        result['on_foot'] = "-"
+    if result['tilting'] == 0:
+        result['tilting'] = "-"
+    if result['unknown'] == 0:
+        result['unknown'] = "-"
 
     return result
 
@@ -572,6 +643,7 @@ def get_app_category_usage(participant, start_time, end_time):
 
     app_usage_data = sensorModels.app_usage_stats.objects.filter(username=participant, start_timestamp__range=[start_time, end_time], end_timestamp__range=[start_time, end_time])
     for data in app_usage_data:
+
         app_package, created = AppPackageToCategoryMap.objects.get_or_create(package_name=data.package_name)
         if created:
             category = getGoogleCategory(data.package_name)
@@ -608,6 +680,33 @@ def get_app_category_usage(participant, start_time, end_time):
         elif category == "Unknown & Background":
             result['Unknown & Background'] += data.total_time_in_foreground
 
+    if result['Entertainment & Music'] == 0:
+        result['Entertainment & Music'] = "-"
+    if result['Utilities'] == 0:
+        result['Utilities'] = "-"
+    if result['Shopping'] == 0:
+        result['Shopping'] = "-"
+    if result['Games & Comics'] == 0:
+        result['Games & Comics'] = "-"
+    if result['Others'] == 0:
+        result['Others'] = "-"
+    if result['Health & Wellness'] == 0:
+        result['Health & Wellness'] = "-"
+    if result['Social & Communication'] == 0:
+        result['Social & Communication'] = "-"
+    if result['Education'] == 0:
+        result['Education'] = "-"
+    if result['Travel'] == 0:
+        result['Travel'] = "-"
+    if result['Art & Design & Photo'] == 0:
+        result['Art & Design & Photo'] = "-"
+    if result['News & Magazine'] == 0:
+        result['News & Magazine'] = "-"
+    if result['Food & Drink'] == 0:
+        result['Food & Drink'] = "-"
+    if result['Unknown & Background'] == 0:
+        result['Unknown & Background'] = "-"
+
     return result
 
 
@@ -621,7 +720,7 @@ def get_sleep_duration(participant, start_time, end_time):
             durations.append((screen_on_data[index + 1].timestamp_start - obj.timestamp_end) / 1000)
     if durations:
         result = max(durations)
-    return result
+    return result if result > 0 else "-"
 
 
 # audio features during phone calls
@@ -633,51 +732,44 @@ def get_pc_audio_data_result(participant, start_time, end_time):
     }
 
     phone_calls_data = sensorModels.phone_calls.objects.filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000], timestamp_end__range=[start_time * 1000, end_time * 1000])
-    for pc in phone_calls_data:
-        audio_data = sensorModels.audio_loudness.objects.values_list('value', flat=True).filter(username=participant, timestamp__range=[pc.timestamp_start * 1000, pc.timestamp_end * 1000])
-        total_samples = audio_data.__len__()
-        result['minimum'] = min(audio_data) if total_samples > 0 else "-"
-        result['maximum'] = max(audio_data) if total_samples > 0 else "-"
-        result['mean'] = sum(audio_data) / total_samples if total_samples > 0 else "-"
+    if phone_calls_data.__len__() > 0:
+        for pc in phone_calls_data:
+            audio_data = sensorModels.audio_loudness.objects.values_list('value', flat=True).filter(username=participant, timestamp__range=[pc.timestamp_start * 1000, pc.timestamp_end * 1000])
+            total_samples = audio_data.__len__()
+            result['minimum'] = min(audio_data) if total_samples > 0 else "-"
+            result['maximum'] = max(audio_data) if total_samples > 0 else "-"
+            result['mean'] = sum(audio_data) / total_samples if total_samples > 0 else "-"
+    else:
+        result['minimum'] = "-"
+        result['maximum'] = "-"
+        result['mean'] = "-"
 
     return result
 
 
 def getGoogleCategory(App):
     url = "https://play.google.com/store/apps/details?id=" + App
-    google_Category = ""
     grouped_Category = ""
     try:
         html = urlopen(url)
-
-    except HTTPError as e:
-
-        google_Category = 'Unknown or Background'
-        grouped_Category = 'Unknown or Background'
-
-    else:
         source = html.read()
         html.close()
 
         soup = BeautifulSoup(source, 'html.parser')
         table = soup.find_all("a", {'itemprop': 'genre'})
-        name = soup.find_all("h1", {'itemprop': 'name'})
-
-        if (len(table) == 0):
-            google_Category = 'Unknown or Background'
 
         genre = table[0].get_text()
-        appName = name[0].get_text()
-
-        google_Category = genre
 
         grouped = cat_list[cat_list['App Category'] == genre]['Grouped Category'].values
-        print(grouped)
+        # print(grouped)
 
         if len(grouped) > 0:
             grouped_Category = grouped[0]
         else:
             grouped_Category = 'NotMapped'
+    except HTTPError as e:
+        grouped_Category = 'Unknown or Background'
 
-        # print(appName, "/ google: ", google_Category, "/category: ", grouped_Category)
+    finally:
+        print("Pckg: ", App, ";   Category: ", grouped_Category)
         return grouped_Category

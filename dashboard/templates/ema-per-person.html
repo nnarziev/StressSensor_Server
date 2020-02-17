@@ -36,9 +36,25 @@
         }
 
         #username_text {
+            width: 750px;
             display: block;
+            alignment: center;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            text-align: center;
+            border-style: dashed;
+            border-color: #369;
+            border-width: 2px;
+        }
+
+        #title {
+            display: block;
+            color: white;
+            background-color: dodgerblue;
             margin-bottom: 10px;
             text-align: center;
+            padding: 20px;
         }
 
         #extract_btn {
@@ -74,8 +90,12 @@
 
 <form action="/dashboard/csv" method="post">
     <div style="margin-bottom: 20px">
-        <h2 style="display: block; margin-bottom: 10px; text-align: center">EMA RESPONSES</h2>
-        <h2 id="username_text">Name: <span style="color: #ff0000; margin-right: 50px">{{ name }} </span> ID: <span style="color: #ff0000;">{{ id }} </span></h2>
+        <h2 id="title">EMA RESPONSES</h2>
+        <h2 id="username_text">
+            Name: <span style="color: #ff0000; margin-right: 50px">{{ name }} </span>
+            ID: <span style="color: #ff0000; margin-right: 50px">{{ id }} </span>
+            Day number: <span style="color: #ff0000;">{{ day_num }} </span>
+        </h2>
         <button id="extract_btn" type="submit">Extract features</button>
     </div>
     <hr>
@@ -115,7 +135,7 @@
             </tr>
         {% endfor %}
     </table>
-    <input name="id"  value="{{ id }}" title="">
+    <input name="id" value="{{ id }}" title="">
 </form>
 
 

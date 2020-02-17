@@ -53,7 +53,7 @@ def submit_api(request):
         if 'username' not in params or 'password' not in params or 'file' not in request.FILES:
             raise ValueError('username/password/file is not in request params')
         if not is_user_valid(params['username'], params['password']):
-            print("Response RES_FAILURE")
+            print("Response RES_FAILURE not valid user ")
             return JsonResponse({'result': RES_FAILURE})
         else:
             username = params['username']
@@ -195,7 +195,7 @@ def submit_api(request):
             except Exception as ex:
                 print("Ex: ", ex)
                 print("filename: ", csv_file.name, data_src_tmp, line_num_tmp)
-                print("Response RES_FAILURE", username, ";\tsize: ", len(data_set) / 1024, ";\tfilename: ", csv_file.name)
+                print("Response RES_FAILURE data processing", username, ";\tsize: ", len(data_set) / 1024, ";\tfilename: ", csv_file.name)
                 return JsonResponse({'result': RES_FAILURE})
 
             # region Check for already submitted files (duplicate files)

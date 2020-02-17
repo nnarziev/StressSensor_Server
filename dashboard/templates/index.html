@@ -44,13 +44,22 @@
             border-bottom: 1px solid #ccc;
             overflow: hidden;
         }
+
+        #title {
+            display: block;
+            color: white;
+            background-color: dodgerblue;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 
 </head>
 <body>
 {% load staticfiles %}
 
-<h2 style="display:block; margin-bottom: 20px; text-align: center;"> MAIN DASHBOARD </h2>
+<h2 id="title"> MAIN DASHBOARD </h2>
 <hr>
 <table>
     <tr id="table_header">
