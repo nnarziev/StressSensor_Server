@@ -65,7 +65,7 @@
     <tr id="table_header">
         <th>Name</th>
         <th>ID</th>
-        <th>Current day no.</th>
+        <th>Register date</th>
         <th>Heartbeat</th>
         <th>Last data upload</th>
         <th>Daily data (MB)</th>
@@ -78,7 +78,7 @@
         <tr id="table_body" style="background:{% if participant.type == "test" %} #fcf2ff {% elif participant.type == "first" %} #e8fff0 {% elif participant.type == "second" %} #f8ffe0 {% endif %};">
             <td>{{ participant.name }}</td>
             <td><a href="/dashboard/{{ participant.id }}/">{{ participant.id }}</a></td>
-            <td>{{ participant.current_day_num }}</td>
+            <td>{{ participant.register_date }}</td>
             <td>{{ participant.heartbeat_smartphone_diff }}</td>
             <td>{{ participant.last_ds_smartphone_diff }}</td>
             <td>{{ participant.daily_data_load }}</td>

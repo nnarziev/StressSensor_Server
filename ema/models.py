@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
+import datetime
 
 
 # Create your models here.
@@ -14,3 +15,7 @@ class Response(models.Model):
     time_expected = models.BigIntegerField(default=0)
     time_responded = models.BigIntegerField(default=0)
     lof_value = models.FloatField(default=-1)
+
+
+    def expected_date(self):
+        return datetime.datetime.fromtimestamp(self.time_expected).date()

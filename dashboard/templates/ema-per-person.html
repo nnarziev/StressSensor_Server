@@ -102,7 +102,7 @@
 
     <table>
         <tr id="table_header">
-            <th>Day no.</th>
+            <th>Date</th>
             <th>EMA order</th>
             <th>answer1</th>
             <th>answer2</th>
@@ -114,7 +114,7 @@
 
         {% for ema in ema_responses %}
             <tr id="table_body">
-                <th>{{ ema.day_num }}</th>
+                <th>{{ ema.expected_date }}</th>
                 <td>
                     {{ ema.ema_order }}
                 </td>

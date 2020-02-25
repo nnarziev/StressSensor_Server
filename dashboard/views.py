@@ -46,7 +46,8 @@ def extract_features(request, exportCSV):
                     participant = Participant.objects.get(id=username)
                     try:
                         response = HttpResponse(content_type='text/csv')
-                        writer = csv.DictWriter(response, fieldnames=['Stress lvl',
+                        writer = csv.DictWriter(response, fieldnames=['User id',
+                                                                      'Stress lvl',
                                                                       'Day',
                                                                       'EMA order',
                                                                       'Unlock duration',
@@ -103,19 +104,20 @@ def extract_features(request, exportCSV):
                         ema_responses = Response.objects.filter(username=participant).order_by('day_num', 'ema_order')
                         ema_length = ema_responses.__len__()
                         for index, ema_res in enumerate(ema_responses):
-                            end_time = ema_res.time_expected
+                            end_time = ema_res.time_responded
                             start_time = end_time - 10800  # 10800sec = 3min before each EMA
-
+                            if start_time < 0:
+                                continue
                             unlock_data = get_unlock_result(participant, start_time, end_time)
                             phonecall_data = get_phonecall_result(participant, start_time, end_time)
                             activities_total_dur = get_activities_dur_result(participant, start_time, end_time)
                             dif_activities = get_num_of_dif_activities_result(participant, start_time, end_time)
                             audio_data = get_audio_data_result(participant, start_time, end_time)
-                            total_dist_data = get_total_distance_result(participant, ema_res.day_num, ema_res.ema_order)
-                            max_dist = get_max_dis_result(participant, ema_res.day_num, ema_res.ema_order)
-                            gyration = get_radius_of_gyration_result(participant, ema_res.day_num, ema_res.ema_order)
-                            max_home = get_max_dist_from_home_result(participant, ema_res.day_num, ema_res.ema_order)
-                            num_places = get_num_of_places_result(participant, ema_res.day_num, ema_res.ema_order)
+                            total_dist_data = get_total_distance_result(participant, start_time, end_time)
+                            max_dist = get_max_dis_result(participant, start_time, end_time)
+                            gyration = get_radius_of_gyration_result(participant, start_time, end_time)
+                            max_home = get_max_dist_from_home_result(participant, start_time, end_time)
+                            num_places = get_num_of_places_result(participant, start_time, end_time)
                             time_at = get_time_at_location(participant, start_time, end_time, sensor_views.LOCATION_HOME)
                             unlock_at = get_unlock_duration_at_location(participant, start_time, end_time, sensor_views.LOCATION_HOME)
                             app_usage = get_app_category_usage(participant, start_time, end_time)
@@ -132,7 +134,8 @@ def extract_features(request, exportCSV):
 
                                 sleep_duration = get_sleep_duration(participant, date_start.timestamp(), date_end.timestamp())
 
-                            writer.writerow({'Stress lvl': ema_res.answer1,
+                            writer.writerow({'User id': participant.id,
+                                             'Stress lvl': ema_res.answer1 + ema_res.answer2 + ema_res.answer3 + ema_res.answer4,
                                              'Day': ema_res.day_num,
                                              'EMA order': ema_res.ema_order,
                                              'Unlock duration': unlock_data,
@@ -183,8 +186,6 @@ def extract_features(request, exportCSV):
                                              'Phonecall audio max.': pc_audio_data['maximum'],
                                              'Phonecall audio mean': pc_audio_data['mean']})
 
-                            if participant.current_day_num() == ema_res.day_num and ema_res.ema_order == 6:
-                                break
                         return response
                     except Exception as ex:
                         print(type(ex))
@@ -577,28 +578,28 @@ def get_audio_data_result(participant, start_time, end_time):
     return result
 
 
-def get_total_distance_result(participant, day_num, ema_order):
-    result = sensorModels.total_dist_covered.objects.values_list("value", flat=True).filter(username=participant, day_num=day_num, ema_order=ema_order)
+def get_total_distance_result(participant, start_time, end_time):
+    result = sensorModels.total_dist_covered.objects.values_list("value", flat=True).filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000])
     return result[0] if result else "-"
 
 
-def get_max_dis_result(participant, day_num, ema_order):
-    result = sensorModels.max_dist_two_locations.objects.values_list("value", flat=True).filter(username=participant, day_num=day_num, ema_order=ema_order)
+def get_max_dis_result(participant, start_time, end_time):
+    result = sensorModels.max_dist_two_locations.objects.values_list("value", flat=True).filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000])
     return result[0] if result else "-"
 
 
-def get_radius_of_gyration_result(participant, day_num, ema_order):
-    result = sensorModels.radius_of_gyration.objects.values_list("value", flat=True).filter(username=participant, day_num=day_num, ema_order=ema_order)
+def get_radius_of_gyration_result(participant, start_time, end_time):
+    result = sensorModels.radius_of_gyration.objects.values_list("value", flat=True).filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000])
     return result[0] if result else "-"
 
 
-def get_max_dist_from_home_result(participant, day_num, ema_order):
-    result = sensorModels.max_dist_from_home.objects.values_list("value", flat=True).filter(username=participant, day_num=day_num, ema_order=ema_order)
+def get_max_dist_from_home_result(participant, start_time, end_time):
+    result = sensorModels.max_dist_from_home.objects.values_list("value", flat=True).filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000])
     return result[0] if result else "-"
 
 
-def get_num_of_places_result(participant, day_num, ema_order):
-    result = sensorModels.num_of_dif_places.objects.values_list("value", flat=True).filter(username=participant, day_num=day_num, ema_order=ema_order)
+def get_num_of_places_result(participant, start_time, end_time):
+    result = sensorModels.num_of_dif_places.objects.values_list("value", flat=True).filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000])
     return result[0] if result else "-"
 
 
@@ -731,10 +732,12 @@ def get_pc_audio_data_result(participant, start_time, end_time):
         "mean": 0
     }
 
+    print("start1: ", start_time, "   end1: ", end_time)
     phone_calls_data = sensorModels.phone_calls.objects.filter(username=participant, timestamp_start__range=[start_time * 1000, end_time * 1000], timestamp_end__range=[start_time * 1000, end_time * 1000])
     if phone_calls_data.__len__() > 0:
         for pc in phone_calls_data:
-            audio_data = sensorModels.audio_loudness.objects.values_list('value', flat=True).filter(username=participant, timestamp__range=[pc.timestamp_start * 1000, pc.timestamp_end * 1000])
+            print("start: ", pc.timestamp_start, "   end: ", pc.timestamp_end)
+            audio_data = sensorModels.audio_loudness.objects.values_list('value', flat=True).filter(username=participant, timestamp__range=[pc.timestamp_start, pc.timestamp_end])
             total_samples = audio_data.__len__()
             result['minimum'] = min(audio_data) if total_samples > 0 else "-"
             result['maximum'] = max(audio_data) if total_samples > 0 else "-"
